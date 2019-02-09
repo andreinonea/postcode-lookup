@@ -1,3 +1,4 @@
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -6,20 +7,13 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public class PostcodesIOAPI extends PostcodeAPIProvider
+public class PostcodesIOAPI implements PostcodeAPIProvider
 {
 
     @Override
     public String getCurrentAPIProviderName()
     {
         return "Postcodes.io";
-    }
-
-    private enum Query
-    {
-        POSTCODE,
-        VALIDATE,
-        NEAREST
     }
 
     @Override
@@ -31,7 +25,7 @@ public class PostcodesIOAPI extends PostcodeAPIProvider
 
 
     @Override
-    public static String getCountry(String postcode) throws IOException
+    public String getCountry(String postcode) throws IOException
     {
         JSONObject response = APICall(postcode, Query.POSTCODE);
         return response.getJSONObject("result").getString("country");
@@ -44,28 +38,38 @@ public class PostcodesIOAPI extends PostcodeAPIProvider
         return response.getJSONObject("result").getString("region");
     }
 
-//    public String getLocation(String postcode) throws IOException
-//    {
-//        JSONObject response = APICall(postcode, Query.POSTCODE);
-//
-//        String postcodee = response.getJSONObject("result").getString("country");
-//        String country = response.getJSONObject("result").getString("country");
-//        String region = response.getJSONObject("result").getString("region");
-//
-//        return String.format("%s" + System.lineSeparator()
-//                           + "--------------------" + System.lineSeparator()
-//                           + "Country: %s" + System.lineSeparator()
-//                           + "Region:  %s" + System.lineSeparator(), postcode, country, region);
-//    }
+    @Override
+    public String getValidatedPostcode(String postcode) throws IOException
+    {
+        JSONObject response = APICall(postcode, Query.POSTCODE);
+        return response.getJSONObject("result").getString("postcode");
+    }
 
-//    @Override
-//    public String[] getNearestPostcodes(String postcode) throws IOException
-//    {
-//        JSONObject response = APICall(postcode, Query.NEAREST);
-//        return "a";
-//    }
+    @Override
+    public String[] getNearestPostcodes(String postcode) throws IOException
+    {
+        JSONObject response = APICall(postcode, Query.NEAREST);
+        JSONArray unformattedPostcodesArray = response.getJSONArray("result");
 
-    private static JSONObject APICall(String postcode, Query query) throws IOException
+        int numberOfPostcodes = unformattedPostcodesArray.length() - 1;
+        String[] nearestPostcodesArray = new String[numberOfPostcodes];
+
+        for(int index = 0; index < numberOfPostcodes; index++)
+            nearestPostcodesArray[index] = unformattedPostcodesArray.getJSONObject(index + 1).getString("postcode");
+
+        return nearestPostcodesArray;
+    }
+
+    // Selection of API requests
+    private enum Query
+    {
+        POSTCODE,
+        VALIDATE,
+        NEAREST
+    }
+
+    // API request builder
+    private JSONObject APICall(String postcode, Query query) throws IOException
     {
         String api = "http://api.postcodes.io/postcodes/";
         String queryOption;

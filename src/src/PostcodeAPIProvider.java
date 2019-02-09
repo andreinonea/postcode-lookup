@@ -1,42 +1,17 @@
 import java.io.IOException;
 
-public abstract class PostcodeAPIProvider implements PostcodeAPI
+// Interface to make API Requests to a particular API provider
+public interface PostcodeAPIProvider
 {
-    private PostcodeAPIProvider apiProvider = new PostcodesIOAPI();
+    boolean isValid(String postcode) throws IOException;
 
-    @Override
-    public boolean isValid(String postcode) throws IOException
-    {
-        return this.apiProvider.isValid(postcode);
-    }
+    String getCountry(String postcode) throws IOException;
 
-    @Override
-    public String getCountry(String postcode) throws IOException
-    {
-        return this.apiProvider.getCountry(postcode);
-    }
+    String getRegion(String postcode) throws IOException;
 
-    @Override
-    public String getRegion(String postcode) throws IOException
-    {
-        return this.apiProvider.getRegion(postcode);
-    }
+    String[] getNearestPostcodes(String postcode) throws IOException;
 
-//    @Override
-//    public String[] getNearestPostcodes(String postcode) throws IOException
-//    {
-//        return this.apiProvider.getNearestPostcodes(postcode);
-//    }
+    String getValidatedPostcode(String postcode) throws IOException;
 
-    //@Override
-    // String[] getPostcodeSuggestions(String postcode);
-
-    @Override
-    public void changeCurrentAPIProvider(PostcodeAPIProvider apiProvider)
-    {
-        this.apiProvider = apiProvider;
-    }
-
-    @Override
-    public abstract String getCurrentAPIProviderName();
+    String getCurrentAPIProviderName();
 }
