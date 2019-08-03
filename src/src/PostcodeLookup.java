@@ -7,7 +7,6 @@ public class PostcodeLookup
         // Ask user to input only one argument
         if(args.length > 1)
         {
-
             System.out.println("Please enter the postcode inside quotes (e.g: \"M13 9GA\").");
             System.exit(0);
         }
